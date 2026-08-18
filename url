@@ -9,10 +9,6 @@ app = Flask(__name__)
 DATABASE = "urls.db"
 
 
-# ---------------------------------------------------------
-# DATABASE FUNCTIONS
-# ---------------------------------------------------------
-
 def get_db_connection():
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
@@ -35,22 +31,12 @@ def initialize_database():
     conn.commit()
     conn.close()
 
-
-# ---------------------------------------------------------
-# URL VALIDATION
-# ---------------------------------------------------------
-
 def is_valid_url(url):
     try:
         parsed = urlparse(url)
         return parsed.scheme in ["http", "https"] and bool(parsed.netloc)
     except Exception:
         return False
-
-
-# ---------------------------------------------------------
-# SHORT CODE GENERATION
-# ---------------------------------------------------------
 
 def generate_short_code(length=6):
     characters = string.ascii_letters + string.digits
@@ -68,11 +54,6 @@ def generate_short_code(length=6):
         if existing is None:
             return code
 
-
-# ---------------------------------------------------------
-# HOME PAGE
-# ---------------------------------------------------------
-
 @app.route("/")
 def home():
     conn = get_db_connection()
@@ -87,10 +68,6 @@ def home():
 
     return render_template("index.html", urls=urls)
 
-
-# ---------------------------------------------------------
-# CREATE SHORT URL
-# ---------------------------------------------------------
 
 @app.route("/shorten", methods=["POST"])
 def shorten_url():
@@ -116,11 +93,6 @@ def shorten_url():
     conn.close()
 
     return redirect("/")
-
-
-# ---------------------------------------------------------
-# REDIRECT SHORT URL
-# ---------------------------------------------------------
 
 @app.route("/<short_code>")
 def redirect_to_original(short_code):
@@ -149,10 +121,6 @@ def redirect_to_original(short_code):
     return redirect(url_data["original_url"])
 
 
-# ---------------------------------------------------------
-# DELETE SHORT URL
-# ---------------------------------------------------------
-
 @app.route("/delete/<short_code>", methods=["POST"])
 def delete_url(short_code):
 
@@ -168,10 +136,6 @@ def delete_url(short_code):
 
     return redirect("/")
 
-
-# ---------------------------------------------------------
-# REST API
-# ---------------------------------------------------------
 
 @app.route("/api/urls", methods=["GET"])
 def get_urls():
@@ -200,10 +164,6 @@ def get_urls():
 
     return jsonify(result)
 
-
-# ---------------------------------------------------------
-# API: CREATE SHORT URL
-# ---------------------------------------------------------
 
 @app.route("/api/shorten", methods=["POST"])
 def api_shorten():
@@ -239,11 +199,6 @@ def api_shorten():
         "short_code": short_code,
         "short_url": request.host_url + short_code
     }), 201
-
-
-# ---------------------------------------------------------
-# APPLICATION START
-# ---------------------------------------------------------
 
 if __name__ == "__main__":
 
